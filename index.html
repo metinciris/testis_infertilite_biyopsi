@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testiküler Biyopsi Yorumlama</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background-color: #2563eb;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .language-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .lang-btn {
+            background-color: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            margin: 0 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .lang-btn:hover, .lang-btn.active {
+            background-color: white;
+            color: #2563eb;
+        }
+        
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .left-panel {
+            flex: 1;
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+        }
+        
+        .right-panel {
+            flex: 1;
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+        }
+        
+        .flow-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .flow-section.completed {
+            background-color: #f0f9ff;
+            border-color: #3b82f6;
+        }
+        
+        .flow-section.active {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .arrow-down {
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e0e7ff;
+            border-radius: 50%;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .arrow-down.show {
+            opacity: 1;
+        }
+        
+        .arrow-down::after {
+            content: '↓';
+            font-size: 24px;
+            color: #3b82f6;
+        }
+        
+        .option-group {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .option {
+            padding: 12px 16px;
+            background-color: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .option:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            transform: translateY(-1px);
+        }
+        
+        .option.selected {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .yes-no-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .yes-no-options .option {
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .yes-no-options .option.yes {
+            background-color: #f0fdf4;
+            border-color: #22c55e;
+        }
+        
+        .yes-no-options .option.yes:hover {
+            background-color: #dcfce7;
+        }
+        
+        .yes-no-options .option.yes.selected {
+            background-color: #22c55e;
+        }
+        
+        .yes-no-options .option.no {
+            background-color: #fef2f2;
+            border-color: #ef4444;
+        }
+        
+        .yes-no-options .option.no:hover {
+            background-color: #fee2e2;
+        }
+        
+        .yes-no-options .option.no.selected {
+            background-color: #ef4444;
+        }
+        
+        .report-preview {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 500px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+        
+        .copy-btn {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            float: right;
+            margin-left: 10px;
+        }
+        
+        .copy-btn:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .flow-indicator {
+            text-align: center;
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        .diagnosis-box {
+            background-color: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .right-panel {
+                position: relative;
+                top: 0;
+            }
+            
+            .language-switcher {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 id="mainTitle">Testiküler Biyopsi Yorumlama</h1>
+        <div class="language-switcher">
+            <button class="lang-btn active" onclick="switchLanguage('tr')">TR</button>
+            <button class="lang-btn" onclick="switchLanguage('en')">EN</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="left-panel">
+            <!-- Düşük Büyütme İncelemesi -->
+            <div class="flow-section active" id="lowPowerSection">
+                <h3 class="section-title" data-tr="Düşük Büyütme İncelemesi (×40)" data-en="Low-power Screening (×40)">
+                    Düşük Büyütme İncelemesi (×40)
+                </h3>
+                <div class="option-group">
+                    <div class="option" onclick="selectOption(this, 'tissueType', 'Uygun doku tipi doğrulandı')" 
+                         data-tr="Uygun doku tipi doğrulandı" data-en="Proper tissue type confirmed">
+                        Uygun doku tipi doğrulandı
+                    </div>
+                    <div class="option" onclick="selectOption(this, 'adequacy', 'Yeterli örnekleme (>75 seminifer tubül)')" 
+                         data-tr="Yeterli örnekleme (>75 seminifer tubül)" 
+                         data-en="Adequate sampling (>75 seminiferous tubules)">
+                        Yeterli örnekleme (>75 seminifer tubül)
+                    </div>
+                    <div class="option" onclick="selectOption(this, 'heterogeneity', 'Genel heterojenite değerlendirildi')" 
+                         data-tr="Genel heterojenite değerlendirildi" 
+                         data-en="Overall heterogeneity assessed">
+                        Genel heterojenite değerlendirildi
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow-down" id="arrow1"></div>
+            
+            <!-- Yüksek Büyütme İncelemesi -->
+            <div class="flow-section hidden" id="highPowerSection">
+                <h3 class="section-title" data-tr="Yüksek Büyütme İncelemesi (×200-×400)" data-en="High-power Screening (×200-×400)">
+                    Yüksek Büyütme İncelemesi (×200-×400)
+                </h3>
+                <p class="flow-indicator" data-tr="Germ hücrelerinin tipleri ve oranları değerlendiriliyor" 
+                   data-en="Assessment of types and proportions of germ cells">
+                    Germ hücrelerinin tipleri ve oranları değerlendiriliyor
+                </p>
+                <div class="option-group">
+                    <div class="option" onclick="selectOption(this, 'pattern', 'Homojen patern')" 
+                         data-tr="Homojen patern" data-en="Homogeneous pattern">
+                        Homojen patern
+                    </div>
+                    <div class="option" onclick="selectOption(this, 'pattern', 'Heterojen patern')" 
+                         data-tr="Heterojen patern" data-en="Heterogeneous pattern">
+                        Heterojen patern
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow-down hidden" id="arrow2"></div>
+            
+            <!-- Homojen Patern - Tüm tubüller hiyalinize mi? -->
+            <div class="flow-section hidden" id="homogenHyalinizedSection">
+                <h3 class="section-title" data-tr="Tüm tubüller hiyalinize ve asellüler mi?" 
+                    data-en="All tubules hyalinized and acellular?">
+                    Tüm tubüller hiyalinize ve asellüler mi?
+                </h3>
+                <div class="yes-no-options">
+                    <div class="option yes" onclick="selectYesNo(this, 'hyalinized', 'Evet')" 
+                         data-tr="Evet" data-en="Yes">Evet</div>
+                    <div class="option no" onclick="selectYesNo(this, 'hyalinized', 'Hayır')" 
+                         data-tr="Hayır" data-en="No">Hayır</div>
+                </div>
+            </div>
+            
+            <!-- Seminifer tubül hiyalinizasyonu -->
+            <div class="flow-section hidden" id="seminiferousHyalinizationSection">
+                <div class="diagnosis-box" data-tr="Seminifer tubül hiyalinizasyonu" 
+                     data-en="Seminiferous tubule hyalinization">
+                    Seminifer tubül hiyalinizasyonu
+                </div>
+            </div>
+            
+            <!-- Germ hücresi yokluğu değerlendirmesi -->
+            <div class="flow-section hidden" id="germCellAbsentSection">
+                <h3 class="section-title" data-tr="Tüm tubüllerde germ hücreleri yok ve sadece Sertoli hücreleri var mı?" 
+                    data-en="All tubules with absent germ cells and retained Sertoli cells?">
+                    Tüm tubüllerde germ hücreleri yok ve sadece Sertoli hücreleri var mı?
+                </h3>
+                <div class="yes-no-options">
+                    <div class="option yes" onclick="selectYesNo(this, 'germCellAbsent', 'Evet')" 
+                         data-tr="Evet" data-en="Yes">Evet</div>
+                    <div class="option no" onclick="selectYesNo(this, 'germCellAbsent', 'Hayır')" 
+                         data-tr="Hayır" data-en="No">Hayır</div>
+                </div>
+            </div>
+            
+            <!-- SCOS -->
+            <div class="flow-section hidden" id="scosSection">
+                <div class="diagnosis-box" data-tr="Sadece Sertoli hücreli sendrom (SCOS)" 
+                     data-en="Sertoli cell-only syndrome (SCOS)">
+                    Sadece Sertoli hücreli sendrom (SCOS)
+                </div>
+            </div>
+            
+            <!-- Matür sperm değerlendirmesi -->
+            <div class="flow-section hidden" id="matureSpermSection">
+                <h3 class="section-title" data-tr="Matür sperm yok mu?" 
+                    data-en="Mature sperm absent?">
+                    Matür sperm yok mu?
+                </h3>
+                <div class="yes-no-options">
+                    <div class="option yes" onclick="selectYesNo(this, 'matureSpermAbsent', 'Evet')" 
+                         data-tr="Evet" data-en="Yes">Evet</div>
+                    <div class="option no" onclick="selectYesNo(this, 'matureSpermAbsent', 'Hayır')" 
+                         data-tr="Hayır" data-en="No">Hayır</div>
+                </div>
+            </div>
+            
+            <!-- Maturasyon arresti -->
+            <div class="flow-section hidden" id="maturationArrestSection">
+                <div class="diagnosis-box" data-tr="Maturasyon arresti" 
+                     data-en="Maturation arrest">
+                    Maturasyon arresti
+                </div>
+            </div>
+            
+            <!-- Azalmış matür sperm -->
+            <div class="flow-section hidden" id="reducedSpermSection">
+                <h3 class="section-title" data-tr="Matür sperm beklenen miktarda azalmış mı?" 
+                    data-en="Mature sperm in reduced expected quantities?">
+                    Matür sperm beklenen miktarda azalmış mı?
+                </h3>
+                <p class="flow-indicator" data-tr="± Sertoli hücre belirginliği, küçük çaplı tubül sayısında artış" 
+                   data-en="± Sertoli cell prominence, increased number of small-diameter tubules">
+                    ± Sertoli hücre belirginliği, küçük çaplı tubül sayısında artış
+                </p>
+                <div class="yes-no-options">
+                    <div class="option yes" onclick="selectYesNo(this, 'reducedSperm', 'Evet')" 
+                         data-tr="Evet" data-en="Yes">Evet</div>
+                    <div class="option no" onclick="selectYesNo(this, 'reducedSperm', 'Hayır')" 
+                         data-tr="Hayır" data-en="No">Hayır</div>
+                </div>
+            </div>
+            
+            <!-- Hipospermatogenez uniform tip -->
+            <div class="flow-section hidden" id="hypospermatogenesisUniformSection">
+                <div class="diagnosis-box" data-tr="Hipospermatogenez uniform tip" 
+                     data-en="Hypospermatogenesis uniform type">
+                    Hipospermatogenez uniform tip
+                </div>
+            </div>
+            
+            <!-- Normal spermatogenez -->
+            <div class="flow-section hidden" id="normalSpermatogenesisSection">
+                <div class="diagnosis-box" data-tr="Normal spermatogenez" 
+                     data-en="Normal spermatogenesis">
+                    Normal spermatogenez
+                </div>
+            </div>
+            
+            <!-- Heterojen Patern Dalı -->
+            <!-- Dağınık tubüller -->
+            <div class="flow-section hidden" id="scatteredTubulesSection">
+                <h3 class="section-title" data-tr="Dağınık hiyalin sklerozlu tubüller mi?" 
+                    data-en="Scattered tubules with hyaline sclerosis?">
+                    Dağınık hiyalin sklerozlu tubüller mi?
+                </h3>
+                <p class="flow-indicator" data-tr="Normal arka plan ile birlikte" 
+                   data-en="With otherwise normal background">
+                    Normal arka plan ile birlikte
+                </p>
+                <div class="yes-no-options">
+                    <div class="option yes" onclick="selectYesNo(this, 'scatteredTubules', 'Evet')" 
+                         data-tr="Evet" data-en="Yes">Evet</div>
+                    <div class="option no" onclick="selectYesNo(this, 'scatteredTubules', 'Hayır')" 
+                         data-tr="Hayır" data-en="No">Hayır</div>
+                </div>
+            </div>
+            
+            <!-- Yaşlanma testiyle uyumlu -->
+            <div class="flow-section hidden" id="agingTestisSection">
+                <div class="diagnosis-box" data-tr="Yaşlanma testiyle uyumlu" 
+                     data-en="Consistent with aging testis">
+                    Yaşlanma testiyle uyumlu
+                </div>
+            </div>
+            
+            <!-- Konflüent tubüller -->
+            <div class="flow-section hidden" id="confluentTubulesSection">
+                <h3 class="section-title" data-tr="Konflüent hiyalin sklerozlu veya dağınık Sertoli hücreli tubüller mi?" 
+                    data-en="Confluent tubules with hyaline sclerosis or scattered Sertoli-cell-only tubules?">
+                    Konflüent hiyalin sklerozlu veya dağınık Sertoli hücreli tubüller mi?
+                </h3>
+                <p class="flow-indicator" data-tr="Normal arka plan ile birlikte" 
+                   data-en="In an otherwise normal background">
+                    Normal arka plan ile birlikte
+                </p>
+                <div class="yes-no-options">
+                    <div class="option yes" onclick="selectYesNo(this, 'confluentTubules', 'Evet')" 
+                         data-tr="Evet" data-en="Yes">Evet</div>
+                    <div class="option no" onclick="selectYesNo(this, 'confluentTubules', 'Hayır')" 
+                         data-tr="Hayır" data-en="No">Hayır</div>
+                </div>
+            </div>
+            
+            <!-- Hipospermatogenez karışık tip -->
+            <div class="flow-section hidden" id="hypospermatogenesisMixedSection">
+                <h3 class="section-title" data-tr="Hipospermatogenez karışık tip mi?" 
+                    data-en="Hypospermatogenesis mixed type?">
+                    Hipospermatogenez karışık tip mi?
+                </h3>
+                <p class="flow-indicator" data-tr="Kitle etkisini dışla" 
+                   data-en="Exclude mass effect">
+                    Kitle etkisini dışla
+                </p>
+                <div class="yes-no-options">
+                    <div class="option yes" onclick="selectYesNo(this, 'hypospermatogenesisMixed', 'Evet')" 
+                         data-tr="Evet" data-en="Yes">Evet</div>
+                    <div class="option no" onclick="selectYesNo(this, 'hypospermatogenesisMixed', 'Hayır')" 
+                         data-tr="Hayır" data-en="No">Hayır</div>
+                </div>
+            </div>
+            
+            <!-- Hipospermatogenez karışık tip tanısı -->
+            <div class="flow-section hidden" id="hypospermatogenesisMixedDiagnosisSection">
+                <div class="diagnosis-box" data-tr="Hipospermatogenez karışık tip" 
+                     data-en="Hypospermatogenesis mixed type">
+                    Hipospermatogenez karışık tip
+                </div>
+            </div>
+            
+            <!-- Ezilme artefaktı -->
+            <div class="flow-section hidden" id="crushArtifactSection">
+                <h3 class="section-title" data-tr="Periferik kısımları içeren hücrelerde hiperkromatik, açısal veya ezilmiş çekirdek?" 
+                    data-en="Hyperchromatic, angulated, or crushed nuclei in cells involving periphery aspect of fragments?">
+                    Periferik kısımları içeren hücrelerde hiperkromatik, açısal veya ezilmiş çekirdek?
+                </h3>
+                <div class="yes-no-options">
+                    <div class="option yes" onclick="selectYesNo(this, 'crushArtifact', 'Evet')" 
+                         data-tr="Evet" data-en="Yes">Evet</div>
+                    <div class="option no" onclick="selectYesNo(this, 'crushArtifact', 'Hayır')" 
+                         data-tr="Hayır" data-en="No">Hayır</div>
+                </div>
+            </div>
+            
+            <!-- Ezilme artefaktı değerlendirmesi -->
+            <div class="flow-section hidden" id="crushArtifactEvaluationSection">
+                <div class="diagnosis-box" data-tr="Ezilme artefaktı var, sağlam tubülleri değerlendir" 
+                     data-en="Consider crush artifact, evaluate intact tubules">
+                    Ezilme artefaktı var, sağlam tubülleri değerlendir
+                </div>
+            </div>
+            
+            <!-- Fokal intratubular germ hücre neoplazisi -->
+            <div class="flow-section hidden" id="focalGermCellNeoplasiaSection">
+                <div class="diagnosis-box" data-tr="Fokal intratubular germ hücre neoplazisini dışla" 
+                     data-en="Exclude focal intratubular germ cell neoplasia">
+                    Fokal intratubular germ hücre neoplazisini dışla
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <h3 class="section-title" style="margin-bottom: 20px;">
+                <span data-tr="Rapor Önizleme" data-en="Report Preview">Rapor Önizleme</span>
+                <button class="copy-btn" onclick="copyReport()" data-tr="Raporu Kopyala" data-en="Copy Report">
+                    Raporu Kopyala
+                </button>
+            </h3>
+            <div class="report-preview" id="reportPreview">
+                <span data-tr="İncelemeye başlayın..." data-en="Start the examination...">
+                    İncelemeye başlayın...
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let reportData = {
+            tissueType: false,
+            adequacy: false,
+            heterogeneity: false,
+            pattern: '',
+            hyalinized: '',
+            germCellAbsent: '',
+            matureSpermAbsent: '',
+            reducedSperm: '',
+            scatteredTubules: '',
+            confluentTubules: '',
+            hypospermatogenesisMixed: '',
+            crushArtifact: '',
+            finalDiagnosis: ''
+        };
+        
+        let currentLang = 'tr';
+        
+        const translations = {
+            tr: {
+                reportTitle: "TESTİKÜLER BİYOPSİ YORUMLAMA RAPORU",
+                lowPowerFindings: "DÜŞÜK BÜYÜTME BULGULARI (×40)",
+                highPowerFindings: "YÜKSEK BÜYÜTME BULGULARI (×200-×400)",
+                pattern: "Patern",
+                findings: "Bulgular",
+                diagnosis: "TANI",
+                confirmed: "Doğrulandı",
+                notEvaluated: "Değerlendirilmedi",
+                yes: "Evet",
+                no: "Hayır",
+                homogeneous: "Homojen",
+                heterogeneous: "Heterojen"
+            },
+            en: {
+                reportTitle: "TESTICULAR BIOPSY INTERPRETATION REPORT",
+                lowPowerFindings: "LOW-POWER FINDINGS (×40)",
+                highPowerFindings: "HIGH-POWER FINDINGS (×200-×400)",
+                pattern: "Pattern",
+                findings: "Findings",
+                diagnosis: "DIAGNOSIS",
+                confirmed: "Confirmed",
+                notEvaluated: "Not evaluated",
+                yes: "Yes",
+                no: "No",
+                homogeneous: "Homogeneous",
+                heterogeneous: "Heterogeneous"
+            }
+        };
+        
+        function switchLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update all elements with data attributes
+            document.querySelectorAll('[data-tr]').forEach(element => {
+                element.textContent = element.getAttribute(`data-${lang}`);
+            });
+            
+            // Update title
+            document.getElementById('mainTitle').textContent = 
+                lang === 'tr' ? 'Testiküler Biyopsi Yorumlama' : 'Testicular Biopsy Interpretation';
+            
+            updateReport();
+        }
+        
+        function selectOption(element, field, value) {
+            if (field === 'tissueType' || field === 'adequacy' || field === 'heterogeneity') {
+                element.classList.toggle('selected');
+                reportData[field] = element.classList.contains('selected');
+                
+                // Check if all low power options are selected
+                if (reportData.tissueType && reportData.adequacy && reportData.heterogeneity) {
+                    showSection('highPowerSection');
+                    showArrow('arrow1');
+                }
+            } else {
+                // Remove selection from siblings
+                element.parentElement.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                element.classList.add('selected');
+                reportData[field] = value;
+                
+                // Handle flow logic
+                handleFlowLogic(field, value);
+            }
+            
+            updateReport();
+        }
+        
+        function selectYesNo(element, field, value) {
+            // Remove selection from sibling
+            element.parentElement.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            element.classList.add('selected');
+            reportData[field] = value;
+            
+            // Handle yes/no flow logic
+            handleYesNoFlow(field, value);
+            
+            updateReport();
+        }
+        
+        function handleFlowLogic(field, value) {
+            if (field === 'pattern') {
+                hideAllSections();
+                document.getElementById('lowPowerSection').classList.remove('hidden');
+                document.getElementById('highPowerSection').classList.remove('hidden');
+                showArrow('arrow2');
+                
+                if (value === 'Homojen patern' || value === 'Homogeneous pattern') {
+                    showSection('homogenHyalinizedSection');
+                } else {
+                    showSection('scatteredTubulesSection');
+                }
+            }
+        }
+        
+        function handleYesNoFlow(field, value) {
+            const isYes = value === 'Evet' || value === 'Yes';
+            
+            switch(field) {
+                case 'hyalinized':
+                    if (isYes) {
+                        showSection('seminiferousHyalinizationSection');
+                        reportData.finalDiagnosis = currentLang === 'tr' ? 
+                            'Seminifer tubül hiyalinizasyonu' : 'Seminiferous tubule hyalinization';
+                    } else {
+                        hideSection('seminiferousHyalinizationSection');
+                        showSection('germCellAbsentSection');
+                    }
+                    break;
+                    
+                case 'germCellAbsent':
+                    if (isYes) {
+                        showSection('scosSection');
+                        reportData.finalDiagnosis = currentLang === 'tr' ? 
+                            'Sadece Sertoli hücreli sendrom (SCOS)' : 'Sertoli cell-only syndrome (SCOS)';
+                    } else {
+                        hideSection('scosSection');
+                        showSection('matureSpermSection');
+                    }
+                    break;
+                    
+                case 'matureSpermAbsent':
+                    if (isYes) {
+                        showSection('maturationArrestSection');
+                        reportData.finalDiagnosis = currentLang === 'tr' ? 
+                            'Maturasyon arresti' : 'Maturation arrest';
+                    } else {
+                        hideSection('maturationArrestSection');
+                        showSection('reducedSpermSection');
+                    }
+                    break;
+                    
+                case 'reducedSperm':
+                    if (isYes) {
+                        showSection('hypospermatogenesisUniformSection');
+                        reportData.finalDiagnosis = currentLang === 'tr' ? 
+                            'Hipospermatogenez uniform tip' : 'Hypospermatogenesis uniform type';
+                    } else {
+                        hideSection('hypospermatogenesisUniformSection');
+                        showSection('normalSpermatogenesisSection');
+                        reportData.finalDiagnosis = currentLang === 'tr' ? 
+                            'Normal spermatogenez' : 'Normal spermatogenesis';
+                    }
+                    break;
+                    
+                case 'scatteredTubules':
+                    if (isYes) {
+                        showSection('agingTestisSection');
+                        reportData.finalDiagnosis = currentLang === 'tr' ? 
+                            'Yaşlanma testiyle uyumlu' : 'Consistent with aging testis';
+                    } else {
+                        hideSection('agingTestisSection');
+                        showSection('confluentTubulesSection');
+                    }
+                    break;
+                    
+                case 'confluentTubules':
+                    if (isYes) {
+                        showSection('hypospermatogenesisMixedSection');
+                    } else {
+                        hideSection('hypospermatogenesisMixedSection');
+                        showSection('crushArtifactSection');
+                    }
+                    break;
+                    
+                case 'hypospermatogenesisMixed':
+                    if (isYes) {
+                        showSection('hypospermatogenesisMixedDiagnosisSection');
+                        reportData.finalDiagnosis = currentLang === 'tr' ? 
+                            'Hipospermatogenez karışık tip' : 'Hypospermatogenesis mixed type';
+                    } else {
+                        hideSection('hypospermatogenesisMixedDiagnosisSection');
+                        showSection('crushArtifactSection');
+                    }
+                    break;
+                    
+                case 'crushArtifact':
+                    if (isYes) {
+                        showSection('crushArtifactEvaluationSection');
+                        reportData.finalDiagnosis = currentLang === 'tr' ? 
+                            'Ezilme artefaktı, sağlam tubüllerin değerlendirilmesi gerekir' : 
+                            'Crush artifact, intact tubules need evaluation';
+                    } else {
+                        hideSection('crushArtifactEvaluationSection');
+                        showSection('focalGermCellNeoplasiaSection');
+                        reportData.finalDiagnosis = currentLang === 'tr' ? 
+                            'Fokal intratubular germ hücre neoplazisi değerlendirilmeli' : 
+                            'Focal intratubular germ cell neoplasia should be evaluated';
+                    }
+                    break;
+            }
+        }
+        
+        function showSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.remove('hidden');
+            section.classList.add('active');
+            
+            // Scroll to section
+            setTimeout(() => {
+                section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+        
+        function hideSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.add('hidden');
+            section.classList.remove('active');
+        }
+        
+        function hideAllSections() {
+            document.querySelectorAll('.flow-section').forEach(section => {
+                if (section.id !== 'lowPowerSection' && section.id !== 'highPowerSection') {
+                    section.classList.add('hidden');
+                    section.classList.remove('active');
+                }
+            });
+            document.querySelectorAll('.arrow-down').forEach(arrow => {
+                arrow.classList.add('hidden');
+            });
+        }
+        
+        function showArrow(arrowId) {
+            const arrow = document.getElementById(arrowId);
+            arrow.classList.remove('hidden');
+            setTimeout(() => {
+                arrow.classList.add('show');
+            }, 100);
+        }
+        
+        function updateReport() {
+            const t = translations[currentLang];
+            let report = `${t.reportTitle}\n\n`;
+            
+            // Low-power findings
+            report += `${t.lowPowerFindings}\n`;
+            if (reportData.tissueType) {
+                report += `- ${currentLang === 'tr' ? 'Uygun doku tipi doğrulandı' : 'Proper tissue type confirmed'}\n`;
+            }
+            if (reportData.adequacy) {
+                report += `- ${currentLang === 'tr' ? 'Yeterli örnekleme (>75 seminifer tubül)' : 'Adequate sampling (>75 seminiferous tubules)'}\n`;
+            }
+            if (reportData.heterogeneity) {
+                report += `- ${currentLang === 'tr' ? 'Genel heterojenite değerlendirildi' : 'Overall heterogeneity assessed'}\n`;
+            }
+            
+            // High-power findings
+            if (reportData.pattern) {
+                report += `\n${t.highPowerFindings}\n`;
+                report += `${t.pattern}: ${reportData.pattern}\n`;
+                
+                // Add flow decisions
+                if (reportData.hyalinized) {
+                    report += `- ${currentLang === 'tr' ? 'Tüm tubüller hiyalinize ve asellüler' : 'All tubules hyalinized and acellular'}: ${reportData.hyalinized}\n`;
+                }
+                if (reportData.germCellAbsent) {
+                    report += `- ${currentLang === 'tr' ? 'Germ hücreleri yok, sadece Sertoli hücreleri' : 'No germ cells, only Sertoli cells'}: ${reportData.germCellAbsent}\n`;
+                }
+                if (reportData.matureSpermAbsent) {
+                    report += `- ${currentLang === 'tr' ? 'Matür sperm yok' : 'No mature sperm'}: ${reportData.matureSpermAbsent}\n`;
+                }
+                if (reportData.reducedSperm) {
+                    report += `- ${currentLang === 'tr' ? 'Matür sperm azalmış' : 'Reduced mature sperm'}: ${reportData.reducedSperm}\n`;
+                }
+                if (reportData.scatteredTubules) {
+                    report += `- ${currentLang === 'tr' ? 'Dağınık hiyalin sklerozlu tubüller' : 'Scattered tubules with hyaline sclerosis'}: ${reportData.scatteredTubules}\n`;
+                }
+                if (reportData.confluentTubules) {
+                    report += `- ${currentLang === 'tr' ? 'Konflüent hiyalin sklerozlu tubüller' : 'Confluent tubules with hyaline sclerosis'}: ${reportData.confluentTubules}\n`;
+                }
+                if (reportData.crushArtifact) {
+                    report += `- ${currentLang === 'tr' ? 'Ezilme artefaktı' : 'Crush artifact'}: ${reportData.crushArtifact}\n`;
+                }
+            }
+            
+            // Final diagnosis
+            if (reportData.finalDiagnosis) {
+                report += `\n${t.diagnosis}\n`;
+                report += reportData.finalDiagnosis;
+            }
+            
+            document.getElementById('reportPreview').textContent = report;
+        }
+        
+        function copyReport() {
+            const reportText = document.getElementById('reportPreview').textContent;
+            navigator.clipboard.writeText(reportText).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = currentLang === 'tr' ? 'Kopyalandı!' : 'Copied!';
+                btn.style.backgroundColor = '#059669';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.backgroundColor = '#10b981';
+                }, 2000);
+            });
+        }
+        
+        // Initialize
+        updateReport();
+    </script>
+</body>
+</html>
